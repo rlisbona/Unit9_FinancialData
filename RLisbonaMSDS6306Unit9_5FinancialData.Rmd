@@ -3,6 +3,7 @@ title: "RLisbonaMSDS6306Unit9_5FinancialDataAnalysis"
 author: "Randy Lisbona"
 date: "July 17, 2016"
 output: html_document
+keep_md: true
 ---
 
 ```{r setup, include=FALSE}
