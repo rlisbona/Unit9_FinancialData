@@ -2,16 +2,22 @@
 title: "RLisbonaMSDS6306Unit9_5FinancialDataAnalysis"
 author: "Randy Lisbona"
 date: "July 17, 2016"
-output: html_document
-keep_md: true
+output: pdf_document
+keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
 library("zoo")
 library("ggplot2")
 library("tseries")
 library("knitr")
+library("forecast")
+library("scales")
+library("gridExtra")
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("..."))
+
 
 Currentwd <- getwd()
 setwd(Currentwd)
@@ -63,10 +69,14 @@ AnalyzeStock <- function(ticker){
 # simple function to plot the data and include the title
 #########################################################################
 StockPlot <- function(stockname) {
+  Startdate <- as.Date(stockname$BeginDate,"%Y")
+  Enddate <- as.Date(stockname$EndDate,"%Y")
   
   autoplot.zoo(stockname$Data) + 
     ggtitle(stockname$PlotTitle) 
-  
+#  + scale_x_continuous(breaks=c(as.date("1/1/1990"),2020))
+
+    
 }
 ```
 # Unit 9.5 Preparing Financial Data
@@ -79,29 +89,56 @@ Procter and Gamble (PG) was the assigned stock for this this project.
 
 # Proctor and Gamble Historical Stock price
 
-```{r getPG ,echo=FALSE, fig.height=2, fig.width=8}
-
+```{r getPG ,echo=FALSE, fig.height=6, fig.width=8}
+#par(mfrow=(c(2,1)))
 stockPG <- AnalyzeStock("PG")
-StockPlot(stockPG)
+stockSNP <- AnalyzeStock("^gspc")
+#class(stockSNP)
+#str(stockPG)
+P1 <- StockPlot(stockPG)
+#P1
+
+  Startdate <- as.Date(stockPG$BeginDate,"%Y")
+  Enddate <- as.Date(stockPG$EndDate,"%Y")
+  #class(Enddate)
+  
+  autoplot.zoo(stockPG$Data) + 
+    ggtitle(stockPG$PlotTitle) 
+#  + scale_x_date(breaks=c(Startdate,Enddate))
+#  + scale_x_date(breaks=pretty_breaks(n=10))
+
+#geom_line(data=stockSNP$Data,aes(x=Index, y=Close, group=Series),type="l", col="red")
+
+#P2 <- StockPlot(stockSNP)
+#P1
+#P2
+
+#grid.arrange(P1,P2,ncol=1,nrow=2)
 ```
 
+
+
+```{r getSNP ,evaluate = FALSE, echo=FALSE, fig.height=2, fig.width=8}
 # Compare PG to the S&P 500 over the same time period
-
-```{r getSNP ,echo=FALSE, fig.height=2, fig.width=8}
-
-stockSNP <- AnalyzeStock("^gspc")
-StockPlot(stockSNP)
+#stockSNP <- AnalyzeStock("^gspc")
+#StockPlot(stockSNP)
 ```
 
 # Examine Log Returns for PG
 
 This chart plots the difference in the log of each days closing price to the log of the previous day. 
-Using the log of the closing price lets us add the returns over the time period.  Percent returns are not additive. 
+Using the log of the closing price lets us add the returns over the time period.  Percent returns are not additive.
+Notice that PG stock prices had significant price drops over the past 25 years. These correspond to 2 for 1 stock splits in:
+
+1. 1992
+2. 1997
+3. 2004
+  
 ```{r logreturns, echo=FALSE, fig.height=6, fig.width=8}
 plot(stockPG$LogReturns) 
 title(main="log returns for stock PG")
-plot(stockSNP$LogReturns) 
-title(main="log returns for S&P 500")
+#plot(stockSNP$LogReturns) 
+#title(main="log returns for S&P 500")
 ```
 
 # Calculate and plot volativity using decay factors of 10,30,100 over the time period
